@@ -3,10 +3,9 @@ import { posts } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
-import rehypeHighlight from "rehype-highlight"
-import "highlight.js/styles/github-dark.css"
+import MarkdownRenderer from "@/components/blog/MarkdownRenderer"
+import ReadingTime from "@/components/blog/ReadingTime"
+import TableOfContents from "@/components/blog/TableOfContents"
 
 export default async function PostPage({
   params,
@@ -43,6 +42,8 @@ export default async function PostPage({
 
       {/* 본문 */}
       <main className="max-w-4xl mx-auto px-8 py-12">
+        {/* 목차 */}
+        <TableOfContents content={data.content} />
         {/* 뒤로가기 */}
         <Link
           href="/"
@@ -87,16 +88,20 @@ export default async function PostPage({
               })
             : ""}
         </p>
+        <p className="text-gray-500 text-sm mb-12">
+            {data.createdAt
+                ? new Date(data.createdAt).toLocaleDateString("ko-KR", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                })
+                : ""}
+            <span className="mx-2 text-gray-700">·</span>
+            <ReadingTime content={data.content} />
+        </p>
 
         {/* 본문 내용 */}
-        <div className="prose prose-invert prose-red max-w-none">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeHighlight]}
-          >
-            {data.content}
-          </ReactMarkdown>
-        </div>
+        <MarkdownRenderer content={data.content} />
       </main>
     </div>
   )
